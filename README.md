@@ -2,31 +2,41 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.ifttt.webhooks/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.ifttt.webhooks/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.ifttt.webhooks.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.ifttt.webhooks/)
 
-# ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Ifttt.Webhooks
-### A utility library for IFTTT webhook calling
+# Soenneker.Ifttt.Webhooks
 
-## Installation
+A utility library for IFTTT webhook calling.
 
-```shell
+## Install
+
+```bash
 dotnet add package Soenneker.Ifttt.Webhooks
 ```
 
-## Registration
+## Quick start
 
 ```csharp
-services.AddIftttWebhookUtilAsSingleton();
+using Soenneker.Ifttt.Webhooks.Registrars;
+using Microsoft.Extensions.DependencyInjection;
+
+var services = new ServiceCollection();
+var result = services.AddIftttWebhookUtilAsSingleton();
 ```
 
-The scoped registration is also available through `AddIftttWebhookUtilAsScoped()`.
+Adds `IIftttWebhookUtil` as a singleton service.
 
-## Usage
+## What you get
 
-```csharp
-string response = await webhookUtil.Trigger(
-    eventName: "order_created",
-    key: "your-ifttt-webhooks-key",
-    value1: "12345",
-    value2: "Ada Lovelace");
-```
+- `IIftttWebhookUtil` — A utility library for IFTTT webhook calling.
+- `IftttWebhookUtilRegistrar` — A utility library for IFTTT webhook calling.
 
-`Trigger` sends a JSON `POST` to the IFTTT Webhooks service. The three value arguments are optional, and the returned string is the response body from IFTTT. Non-success HTTP responses throw an `HttpRequestException`.
+## API at a glance
+
+| API | What it does | Result / important behavior |
+| --- | --- | --- |
+| `IIftttWebhookUtil.Trigger(eventName, key, value1, value2, value3, cancellationToken)` | Triggers an IFTTT Webhooks event. | The response body returned by IFTTT. |
+| `IftttWebhookUtilRegistrar.AddIftttWebhookUtilAsSingleton(services)` | Adds `IIftttWebhookUtil` as a singleton service. | The same service collection, so additional registrations can be chained. |
+| `IftttWebhookUtilRegistrar.AddIftttWebhookUtilAsScoped(services)` | Adds `IIftttWebhookUtil` as a scoped service. | The same service collection, so additional registrations can be chained. |
+
+## Practical notes
+
+- Cancellation stops pending work; it does not undo work that has already completed.
