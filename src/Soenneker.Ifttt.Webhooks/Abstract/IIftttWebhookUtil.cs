@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Soenneker.Ifttt.Webhooks.Abstract;
 
 /// <summary>
-/// A utility library for IFTTT webhook calling
+/// Triggers IFTTT Webhooks events with up to three optional values.
 /// </summary>
 public interface IIftttWebhookUtil
 {
@@ -12,12 +12,12 @@ public interface IIftttWebhookUtil
     /// Triggers an IFTTT Webhooks event.
     /// </summary>
     /// <param name="eventName">The event name configured in the IFTTT applet.</param>
-    /// <param name="key">Key used to locate the target entry.</param>
-    /// <param name="value1">Value for the trigger operation.</param>
-    /// <param name="value2">Value for the trigger operation.</param>
-    /// <param name="value3">Value for the trigger operation.</param>
+    /// <param name="key">The private Webhooks service key.</param>
+    /// <param name="value1">The optional first ingredient exposed to the applet.</param>
+    /// <param name="value2">The optional second ingredient exposed to the applet.</param>
+    /// <param name="value3">The optional third ingredient exposed to the applet.</param>
     /// <param name="cancellationToken">A token that can cancel the request.</param>
-    /// <returns>The response body returned by IFTTT.</returns>
+    /// <returns>The response body returned by IFTTT after a successful request.</returns>
     ValueTask<string> Trigger(string eventName, string key, string? value1 = null, string? value2 = null, string? value3 = null,
         CancellationToken cancellationToken = default);
 }

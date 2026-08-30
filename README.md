@@ -1,10 +1,12 @@
 [![](https://img.shields.io/nuget/v/soenneker.ifttt.webhooks.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.ifttt.webhooks/)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.ifttt.webhooks/build-and-test.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.ifttt.webhooks/actions/workflows/build-and-test.yml)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.ifttt.webhooks/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.ifttt.webhooks/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/soenneker.ifttt.webhooks.svg?style=for-the-badge)](https://www.nuget.org/packages/soenneker.ifttt.webhooks/)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.ifttt.webhooks/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.ifttt.webhooks/actions/workflows/codeql.yml)
 
 # Soenneker.Ifttt.Webhooks
 
-A utility library for IFTTT webhook calling.
+Triggers IFTTT Webhooks events with the optional `value1`, `value2`, and `value3` ingredients.
 
 ## Install
 
@@ -12,31 +14,40 @@ A utility library for IFTTT webhook calling.
 dotnet add package Soenneker.Ifttt.Webhooks
 ```
 
-## Quick start
+## Register
 
 ```csharp
 using Soenneker.Ifttt.Webhooks.Registrars;
-using Microsoft.Extensions.DependencyInjection;
 
-var services = new ServiceCollection();
-var result = services.AddIftttWebhookUtilAsSingleton();
+services.AddIftttWebhookUtilAsScoped();
 ```
 
-Adds `IIftttWebhookUtil` as a singleton service.
+The scoped utility deliberately uses a singleton HTTP client cache. Individual utility scopes can end without destroying the long-lived client used by later calls. Use `AddIftttWebhookUtilAsSingleton()` when the utility itself should also have application lifetime.
 
-## What you get
+## Trigger an event
 
-- `IIftttWebhookUtil` — A utility library for IFTTT webhook calling.
-- `IftttWebhookUtilRegistrar` — A utility library for IFTTT webhook calling.
+```csharp
+using Soenneker.Ifttt.Webhooks.Abstract;
 
-## API at a glance
+public sealed class DeploymentNotifier(
+    IIftttWebhookUtil webhooks,
+    IConfiguration configuration)
+{
+    public async Task Notify(string version, CancellationToken cancellationToken)
+    {
+        string key = configuration["Ifttt:WebhookKey"]
+            ?? throw new InvalidOperationException("Ifttt:WebhookKey is not configured");
 
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `IIftttWebhookUtil.Trigger(eventName, key, value1, value2, value3, cancellationToken)` | Triggers an IFTTT Webhooks event. | The response body returned by IFTTT. |
-| `IftttWebhookUtilRegistrar.AddIftttWebhookUtilAsSingleton(services)` | Adds `IIftttWebhookUtil` as a singleton service. | The same service collection, so additional registrations can be chained. |
-| `IftttWebhookUtilRegistrar.AddIftttWebhookUtilAsScoped(services)` | Adds `IIftttWebhookUtil` as a scoped service. | The same service collection, so additional registrations can be chained. |
+        await webhooks.Trigger(
+            eventName: "deployment_completed",
+            key: key,
+            value1: version,
+            value2: "production",
+            cancellationToken: cancellationToken);
+    }
+}
+```
 
-## Practical notes
+The three values are optional and are serialized as IFTTT's `value1`, `value2`, and `value3` JSON fields. `Trigger()` returns IFTTT's response body and throws `HttpRequestException` for a non-success status.
 
-- Cancellation stops pending work; it does not undo work that has already completed.
+Treat the Webhooks key as a secret. It is part of IFTTT's required request path, so configure HTTP logging and tracing to redact or omit the URL before using this client in an environment that records outbound requests.
