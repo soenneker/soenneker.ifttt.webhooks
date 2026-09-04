@@ -8,6 +8,7 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.Ifttt.Webhooks;
 
+/// <inheritdoc cref="IIftttWebhookUtil" />
 public sealed class IftttWebhookUtil : IIftttWebhookUtil
 {
     private const string _clientId = nameof(IftttWebhookUtil);
