@@ -35,7 +35,7 @@ public sealed class IftttWebhookUtil : IIftttWebhookUtil
 
         var payload = new IftttWebhookPayload(value1, value2, value3);
 
-        using HttpResponseMessage response = await client.PostAsJsonAsync(requestUri, payload, cancellationToken);
+        using HttpResponseMessage response = await client.PostAsJsonAsync(requestUri, payload, IftttJsonContext.Default.IftttWebhookPayload, cancellationToken);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStringAsync(cancellationToken);
