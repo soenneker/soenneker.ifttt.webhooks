@@ -25,7 +25,7 @@ public sealed class IftttWebhookUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task Scoped_utility_keeps_http_client_cache_singleton()
+    public async ValueTask Scoped_utility_keeps_http_client_cache_singleton()
     {
         var services = new ServiceCollection();
 
