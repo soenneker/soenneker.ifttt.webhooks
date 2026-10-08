@@ -5,6 +5,7 @@ using Soenneker.Ifttt.Webhooks.Abstract;
 using Soenneker.Ifttt.Webhooks.Registrars;
 using Soenneker.Tests.HostedUnit;
 using Soenneker.Utils.HttpClientCache.Abstract;
+using System.Threading;
 
 namespace Soenneker.Ifttt.Webhooks.Tests;
 
@@ -25,7 +26,7 @@ public sealed class IftttWebhookUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async ValueTask Scoped_utility_keeps_http_client_cache_singleton()
+    public async ValueTask Scoped_utility_keeps_http_client_cache_singleton(CancellationToken cancellationToken)
     {
         var services = new ServiceCollection();
 
